@@ -42,6 +42,7 @@ void printAddress(TrieNode* node, int* prefix, int depth) {
 
     if (node->isEnd) {
         printBinaryToIP(prefix);
+        return;
     }
 
     if (node->children[0] != NULL) {
@@ -99,7 +100,7 @@ int searchTrie(char* ip, TrieNode* root) {
     return 1;
 }
 
-int* parseSubnet(char* cidr, int* maskLen) {
+int* parseCIDR(char* cidr, int* maskLen) {
     int n1, n2, n3, n4, n5;
     if(sscanf(cidr, "%d.%d.%d.%d/%d", &n1, &n2, &n3, &n4, &n5) != 5) {
         printf("Invalid CIDR format.\n");
@@ -138,7 +139,7 @@ void printSubnet(TrieNode* node, int* prefix, int depth, int* subnet, int maskLe
 
 void printCIDR(char* cidr, TrieNode* root) {
     int maskLen;
-    int* subnet = parseSubnet(cidr, &maskLen);
+    int* subnet = parseCIDR(cidr, &maskLen);
     if(subnet == NULL) {
         return;
     }
