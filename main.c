@@ -13,13 +13,13 @@ void initTrie(TrieNode* root) {
     char ip4[] = "192.168.1.25";
 
     int* binary = parse(ip1);
-    enterAddress(root, parse(ip1));
+    enterAddress(root, binary);
     binary = parse(ip2);
-    enterAddress(root, parse(ip2));
+    enterAddress(root, binary);
     binary = parse(ip3);
-    enterAddress(root, parse(ip3));
+    enterAddress(root, binary);
     binary = parse(ip4);
-    enterAddress(root, parse(ip4));
+    enterAddress(root, binary);
 
     free(binary);
 }
@@ -34,10 +34,12 @@ int main(void) {
         printf("Select an option: \n"
                "1:IP Lookup\n"
                "2:Display all available addresses\n"
+               "3:Display addresses in subnet:\n"
                "E: End program\n"
                );
         scanf("%c", &option);
         getchar();
+        char cidr[18];
         switch(option) {
             case '1':
                 printf("Enter IP to search: ");
@@ -60,6 +62,12 @@ int main(void) {
                 break;
             case '2':
                 print(root);
+                break;
+            case '3':
+                printf("Enter CIDR:\n");
+                scanf("%s", cidr);
+                getchar();
+                printCIDR(cidr, root);
                 break;
             case 'E':
                 printf("Exiting program\n");

@@ -15,5 +15,6 @@ void print(TrieNode* root);
 void freeTrie(TrieNode* node);
 int* parse(char* ip);
 int searchTrie(char* ip, TrieNode* root);
+void printCIDR(char* cidr, TrieNode* root);
 
 #endif

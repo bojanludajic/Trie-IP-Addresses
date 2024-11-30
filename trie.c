@@ -71,11 +71,8 @@ void freeTrie(TrieNode* node) {
 }
 
 int* parse(char* ip) {
-    char ip_copy[strlen(ip) + 1];
-    strcpy(ip_copy, ip);
-
     int n1, n2, n3, n4;
-    sscanf(ip_copy, "%d.%d.%d.%d", &n1, &n2, &n3, &n4);
+    sscanf(ip, "%d.%d.%d.%d", &n1, &n2, &n3, &n4);
     int octets[4] = {n1, n2, n3, n4};
 
     int* binary = malloc(32 * sizeof(int));
@@ -100,4 +97,54 @@ int searchTrie(char* ip, TrieNode* root) {
     }
 
     return 1;
+}
+
+int* parseSubnet(char* cidr, int* maskLen) {
+    int n1, n2, n3, n4, n5;
+    if(sscanf(cidr, "%d.%d.%d.%d/%d", &n1, &n2, &n3, &n4, &n5) != 5) {
+        printf("Invalid CIDR format.\n");
+        return NULL;
+    }
+
+    *maskLen = n5;
+    if(*maskLen < 0 || *maskLen > 32) {
+        printf("Invalid mask length.\n");
+        return NULL;
+    }
+
+    int octets[4] = {n1, n2, n3, n4};
+    int* binary = malloc(32 * sizeof(int));
+    int h = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int k = 7; k >= 0; k--) {
+            binary[h] = (octets[i] >> k) & 1;
+            h++;
+        }
+    }
+
+    return binary;
+}
+
+void printSubnet(TrieNode* node, int* prefix, int depth, int* subnet, int maskLen) {
+    if(node == NULL)  return;
+
+    if(depth == maskLen) {
+        printAddress(node, prefix, depth);
+    } else {
+        prefix[depth] = subnet[depth];
+        printSubnet(node->children[subnet[depth]], prefix, depth + 1, subnet, maskLen);
+    }
+}
+
+void printCIDR(char* cidr, TrieNode* root) {
+    int maskLen;
+    int* subnet = parseSubnet(cidr, &maskLen);
+    if(subnet == NULL) {
+        return;
+    }
+    printf("Addresses in provided network:\n");
+    int prefix[32] = {0};
+    printSubnet(root, prefix, 0, subnet, maskLen);
+
+    free(subnet);
 }
