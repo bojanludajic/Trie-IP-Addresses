@@ -5,7 +5,7 @@ while requiring minimal memory overhead.
 
 ### Features
 - [x] Insertion/lookup
-- [ ] CIDR support
+- [x] CIDR-based lookup
 - [ ] Subnet calculations
 
 
