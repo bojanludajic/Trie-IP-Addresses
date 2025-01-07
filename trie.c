@@ -25,7 +25,7 @@ void enterAddress(TrieNode* root, int* address) {
     cur->isEnd = IS_END;
 }
 
-void printBinaryToIP(int* binary) {
+void printBinaryToIP(const int* binary) {
     for (int i = 0; i < 4; i++) {
         int octet = 0;
         for (int j = 0; j < 8; j++) {
@@ -42,20 +42,19 @@ void printAddress(TrieNode* node, int* prefix, int depth) {
 
     if (node->isEnd) {
         printBinaryToIP(prefix);
-        return;
-    }
-
-    if (node->children[0] != NULL) {
-        prefix[depth] = 0;
-        printAddress(node->children[0], prefix, depth + 1);
-    }
-    if (node->children[1] != NULL) {
-        prefix[depth] = 1;
-        printAddress(node->children[1], prefix, depth + 1);
+    } else {
+        if (node->children[0] != NULL) {
+            prefix[depth] = 0;
+            printAddress(node->children[0], prefix, depth + 1);
+        }
+        if (node->children[1] != NULL) {
+            prefix[depth] = 1;
+            printAddress(node->children[1], prefix, depth + 1);
+        }
     }
 }
 
-void print(TrieNode* root) {
+void printAvailableAddresses(TrieNode* root) {
     printf("Available IP addresses: \n");
     int prefix[32];
     printAddress(root, prefix, 0);
@@ -73,11 +72,15 @@ void freeTrie(TrieNode* node) {
 
 int* parse(char* ip) {
     int n1, n2, n3, n4;
-    sscanf(ip, "%d.%d.%d.%d", &n1, &n2, &n3, &n4);
+
+    if(sscanf(ip, "%d.%d.%d.%d", &n1, &n2, &n3, &n4) != 4) {
+        return NULL;
+    }
     int octets[4] = {n1, n2, n3, n4};
 
     int* binary = malloc(32 * sizeof(int));
     int h = 0;
+
     for (int i = 0; i < 4; i++) {
         for (int k = 7; k >= 0; k--) {
             binary[h] = (octets[i] >> k) & 1;
@@ -90,12 +93,21 @@ int* parse(char* ip) {
 
 int searchTrie(char* ip, TrieNode* root) {
     int* binary = parse(ip);
-    TrieNode* cur = root;
 
+    if(binary == NULL) {
+        printf("Invalid address format!\n");
+        return -1;
+    }
+    TrieNode* cur = root;
     for (int i = 0; i < 32; i++) {
         cur = cur->children[binary[i]];
-        if (cur == NULL) return 0;
+        if (cur == NULL) {
+            free(binary);
+            return 0;
+        }
     }
+
+    free(binary);
 
     return 1;
 }
@@ -126,26 +138,29 @@ int* parseCIDR(char* cidr, int* maskLen) {
     return binary;
 }
 
-void printSubnet(TrieNode* node, int* prefix, int depth, int* subnet, int maskLen) {
+void printSubnet(TrieNode* node, int* subnet, int maskLen) {
     if(node == NULL)  return;
 
-    if(depth == maskLen) {
-        printAddress(node, prefix, depth);
-    } else {
-        prefix[depth] = subnet[depth];
-        printSubnet(node->children[subnet[depth]], prefix, depth + 1, subnet, maskLen);
+    for(int i = 0; i < maskLen; i++) {
+        if(node == NULL) {
+            printf("No addresses found in this subnet.");
+            return;
+        }
+        node = node->children[subnet[i]];
     }
+
+    printAddress(node, subnet, maskLen);
 }
 
 void printCIDR(char* cidr, TrieNode* root) {
     int maskLen;
     int* subnet = parseCIDR(cidr, &maskLen);
+
     if(subnet == NULL) {
         return;
     }
-    printf("Addresses in provided network:\n");
-    int prefix[32] = {0};
-    printSubnet(root, prefix, 0, subnet, maskLen);
+
+    printSubnet(root, subnet, maskLen);
 
     free(subnet);
 }

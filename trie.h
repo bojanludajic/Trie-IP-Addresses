@@ -11,7 +11,7 @@ typedef struct TrieNode {
 
 TrieNode* createNode();
 void enterAddress(TrieNode* root, int* address);
-void print(TrieNode* root);
+void printAvailableAddresses(TrieNode* root);
 void freeTrie(TrieNode* node);
 int* parse(char* ip);
 int searchTrie(char* ip, TrieNode* root);

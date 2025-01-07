@@ -2,8 +2,6 @@
 #include <stdlib.h>
 
 #include "trie.h"
-#define IS_END 1
-#define NOT_END 0
 
 
 void initTrie(TrieNode* root) {
@@ -32,9 +30,9 @@ int main(void) {
 
     do {
         printf("Select an option: \n"
-               "1:IP Lookup\n"
-               "2:Display all available addresses\n"
-               "3:Display addresses in subnet:\n"
+               "1: IP Lookup\n"
+               "2: Display all available addresses\n"
+               "3: Display addresses in subnet:\n"
                "E: End program\n"
                );
         scanf("%c", &option);
@@ -46,9 +44,10 @@ int main(void) {
                 char searchIP[15];
                 scanf("%s", searchIP);
                 getchar();
-                if(searchTrie(searchIP, root)) {
+                int searchResult = searchTrie(searchIP, root);
+                if(searchResult == 1) {
                     printf("Address found\n");
-                } else {
+                } else if(searchResult == 0) {
                     printf("Address not found, would you like to insert it? (Y/N): ");
                     char insertq;
                     scanf("%c", &insertq);
@@ -61,7 +60,7 @@ int main(void) {
                 }
                 break;
             case '2':
-                print(root);
+                printAvailableAddresses(root);
                 break;
             case '3':
                 printf("Enter CIDR:\n");
